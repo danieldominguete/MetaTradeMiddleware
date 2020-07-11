@@ -33,5 +33,5 @@ class Util:
         dataframe.to_csv(file_path,
                          sep='\t',
                          index=True,
-                         index_labe="id",
-                         encoding='uft-8')
+                         index_label="id",
+                         encoding='utf-8')

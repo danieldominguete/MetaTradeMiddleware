@@ -16,7 +16,7 @@ import pytz
 
 # Include root folder to path
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(os.path.dirname(os.path.dirname(currentdir)))
+parentdir = os.path.dirname(os.path.dirname(currentdir))
 sys.path.insert(0,parentdir)
 
 # Local libraries
@@ -38,7 +38,7 @@ class GetAssetTicksMain:
 
         # Parameters
         asset_name = "VVAR3"
-        candlestick_interval = mt5.TIMEFRAME_H1
+        candlestick_interval = mt5.TIMEFRAME_M1
 
         # =========================================================================================
         # Metatrader connection
@@ -65,8 +65,8 @@ class GetAssetTicksMain:
         timezone = pytz.timezone("Etc/UTC")
 
         # criamos o objeto datetime no fuso horário UTC para que não seja aplicado o deslocamento do fuso horário local
-        utc_from = datetime(2020, 1, 10, hour=00, tzinfo=timezone)
-        utc_to = datetime(2020, 1, 11, hour=13, tzinfo=timezone)
+        utc_from = datetime(2020, 7, 10, hour=00, tzinfo=timezone)
+        utc_to = datetime(2020, 7, 11, hour=00, tzinfo=timezone)
 
         # obtemos as barras no fuso horário UTC
         candlesticks = mt5.copy_rates_range(asset_name, candlestick_interval , utc_from, utc_to)
@@ -81,7 +81,7 @@ class GetAssetTicksMain:
         mt5.shutdown()
 
         # Saving to file
-        Util.save_pandas_file(dataframe=rates_frame)
+        Util.save_pandas_file(dataframe=rates_frame, file_path="asset_dump_example.csv")
 
         logging.info("======================================================================")
         logging.info("Script de aquisição de dados encerrado!")
