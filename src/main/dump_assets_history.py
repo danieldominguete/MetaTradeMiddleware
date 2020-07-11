@@ -1,6 +1,6 @@
 '''
 ===========================================================================================
-Get Asset Ticks Main : Get ticks infos from Metatrade5 (just windows environment)
+Get Historical Asset Ticks : Get ticks infos from Metatrade5 (just windows environment)
 ===========================================================================================
 '''
 
@@ -13,6 +13,7 @@ from datetime import datetime
 import pandas as pd
 import MetaTrader5 as mt5
 import pytz
+import dateutil.parser
 
 # Include root folder to path
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -36,9 +37,7 @@ class GetAssetTicksMain:
         logging.info("======================================================================")
         logging.info("Iniciando script de aquisição de série de candles...")
 
-        # Parameters
-        asset_name = "VVAR3"
-        candlestick_interval = mt5.TIMEFRAME_M1
+        data_config = Util.load_parameters_from_file(path_file=self.parameters_file)
 
         # =========================================================================================
         # Metatrader connection
@@ -61,12 +60,21 @@ class GetAssetTicksMain:
             for prop in terminal_info_dict:
                 print("  {}={}".format(prop, terminal_info_dict[prop]))
 
+        # get init datetime
+        init = dateutil.parser(data_config.get("from_date"))
+        end = dateutil.parser(data_config.get("to_date"))
+
         # definimos o fuso horário como UTC
         timezone = pytz.timezone("Etc/UTC")
 
         # criamos o objeto datetime no fuso horário UTC para que não seja aplicado o deslocamento do fuso horário local
         utc_from = datetime(2020, 7, 10, hour=00, tzinfo=timezone)
         utc_to = datetime(2020, 7, 11, hour=00, tzinfo=timezone)
+
+        # Parameters
+        asset_name = "VVAR3"
+        candlestick_interval = mt5.TIMEFRAME_M1
+
 
         # obtemos as barras no fuso horário UTC
         candlesticks = mt5.copy_rates_range(asset_name, candlestick_interval , utc_from, utc_to)
