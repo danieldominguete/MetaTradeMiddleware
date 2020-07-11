@@ -61,35 +61,36 @@ class GetAssetTicksMain:
                 print("  {}={}".format(prop, terminal_info_dict[prop]))
 
         # get init datetime
-        init = dateutil.parser(data_config.get("from_date"))
-        end = dateutil.parser(data_config.get("to_date"))
+        init = (data_config.get("from_date"))
+        end = (data_config.get("to_date"))
 
         # definimos o fuso horário como UTC
         timezone = pytz.timezone("Etc/UTC")
 
         # criamos o objeto datetime no fuso horário UTC para que não seja aplicado o deslocamento do fuso horário local
-        utc_from = datetime(2020, 7, 10, hour=00, tzinfo=timezone)
-        utc_to = datetime(2020, 7, 11, hour=00, tzinfo=timezone)
+        utc_from = datetime.strptime(init, "%Y-%m-%dT%H:%M:%S %z")
+        utc_to = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S %z")
 
-        # Parameters
-        asset_name = "VVAR3"
+        # Collect asset infos
+        asset_list = data_config.get("assets")
         candlestick_interval = mt5.TIMEFRAME_M1
 
+        for asset in asset_list:
 
-        # obtemos as barras no fuso horário UTC
-        candlesticks = mt5.copy_rates_range(asset_name, candlestick_interval , utc_from, utc_to)
+            # obtemos as barras no fuso horário UTC
+            candlesticks = mt5.copy_rates_range(asset, candlestick_interval , utc_from, utc_to)
 
-        # criamos a partir dos dados obtidos DataFrame
-        rates_frame = pd.DataFrame(candlesticks)
+            # criamos a partir dos dados obtidos DataFrame
+            rates_frame = pd.DataFrame(candlesticks)
 
-        # convertemos o tempo em segundos no formato datetime
-        rates_frame['time'] = pd.to_datetime(rates_frame['time'], unit='s')
+            # convertemos o tempo em segundos no formato datetime
+            rates_frame['time'] = pd.to_datetime(rates_frame['time'], unit='s')
+
+            # Saving to file
+            Util.save_pandas_file(dataframe=rates_frame, file_path="static\\asset_dump_example.csv")
 
         # Closing connection
         mt5.shutdown()
-
-        # Saving to file
-        Util.save_pandas_file(dataframe=rates_frame, file_path="asset_dump_example.csv")
 
         logging.info("======================================================================")
         logging.info("Script de aquisição de dados encerrado!")
